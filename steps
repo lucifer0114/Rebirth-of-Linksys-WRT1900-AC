@@ -1,0 +1,23 @@
+#步骤一：切换固件
+1.fw_printenv boot_part
+boot_part=2 #显示当前分区
+2.fw_setenv boot_part 1 #切换至另一分区
+3.reboot -f #强启
+#步骤二：挂载U盘
+4.opkg install block-mount #Luci界面无挂载点（mount point）时输入
+5.opkg install kmod-usb-core kmod-usb-storage kmod-usb-storage-uas kmod-usb-uhci kmod-usb-ohci kmod-usb2 kmod-usb3  #安装usb驱动
+6.opkg install mount-utils lsblk blockd kmod-fs-ext4 kmod-fs-vfat e2fsprogs fdisk #安装格式化分区软件包
+7.df -h #插入格式化Ext4的U盘后输入，记住显示新增的盘符名sda1
+8.mkdir /mnt/sda1 #挂载报错no such files时使用
+9.mount /dev/sda1 /mnt/sda1
+10.cp -r /overlay/* /mnt/sda1
+11.umount /mnt #非必要步骤（可能）
+12.前往Luci界面的挂载点（mount point），挂载为overlay，应用。
+*重启后若更改未生效，则在etc/rc.local exit0上方加入以下两行代码：（第一行优先）
+mount /dev/sda1 /overlay
+/etc/inti.d/fstab reload
+#步骤三：安装插件
+#Openclash:
+13.opkg update
+14.opkg install bash dnsmasq-full curl ca-bundle ip-full ruby ruby-yaml kmod-tun kmod-inet-diag unzip kmod-nft-tproxy luci-compat luci luci-base #安装依赖
+15.opkg install /tmp/openclash.ipk
